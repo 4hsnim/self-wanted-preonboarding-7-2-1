@@ -1,32 +1,44 @@
 import { useEffect, useState, useCallback } from "react";
 import request from "../../utils/api/axios";
 import Molecules from "../molecules";
+import useIntersectionObserver from "../../utils/hooks/useIntersectionObserver";
+
+type ResponseIssue = {
+  id: string;
+  number: string;
+  comments: string;
+  title: string;
+  user: { login: string };
+  created_at: string;
+};
+
+type Issue = {
+  issueId: number;
+  issueNumber: number;
+  comments: number;
+  issueTitle: string;
+  user: string;
+  createdDate: string;
+};
 
 const Issues = () => {
-  type ResponseIssue = {
-    id: string;
-    number: string;
-    comments: string;
-    title: string;
-    user: { login: string };
-    created_at: string;
-  };
-
-  type Issue = {
-    issueId: number;
-    issueNumber: number;
-    comments: number;
-    issueTitle: string;
-    user: string;
-    createdDate: string;
-  };
-
   const [issues, setIssues] = useState([]);
+  const [pageindex, setPageIndex] = useState("1");
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const testFetch = (delay = 1000) =>
+    new Promise((res) => setTimeout(res, delay));
+
   const getData = useCallback(async () => {
     try {
       //   const data = await request.get("/issues?sort=comments&direction=desc");
       const response = await request.get("/issues", {
-        params: { sort: "comments", direction: "desc" },
+        params: {
+          sort: "comments",
+          direction: "desc",
+          page: pageindex,
+          per_page: "20",
+        },
       });
       const data = response.data.map((issue: ResponseIssue): Issue => {
         return {
@@ -39,7 +51,11 @@ const Issues = () => {
         };
       });
       console.log(data);
-      setIssues(data);
+      setIsLoaded(true);
+      await testFetch();
+      setIssues((prevIssues) => prevIssues.concat(data));
+      setPageIndex((prevIndex) => prevIndex + 1);
+      setIsLoaded(false);
       // console.log(response.data);
     } catch (error) {
       console.log(error);
@@ -48,13 +64,33 @@ const Issues = () => {
 
   useEffect(() => {
     getData();
-  }, [getData]);
+  }, []);
+
+  const onIntersect: IntersectionObserverCallback = async (
+    [entry],
+    observer
+  ) => {
+    //보통 교차여부만 확인하는 것 같다. 코드는 로딩상태까지 확인함.
+    if (entry.isIntersecting && !isLoaded) {
+      observer.unobserve(entry.target);
+      await getData();
+      observer.observe(entry.target);
+    }
+  };
+
+  //현재 대상 및 option을 props로 전달
+  const { setTarget } = useIntersectionObserver({
+    root: null,
+    rootMargin: "0px",
+    threshold: 0.5,
+    onIntersect,
+  });
 
   return (
     <>
-      {issues.map((element: Issue) => (
+      {issues.map((element: Issue, index: number) => (
         <Molecules.Issue
-          key={element.issueId}
+          key={index}
           issueNumber={element.issueNumber}
           comments={element.comments}
           issueTitle={element.issueTitle}
@@ -62,6 +98,7 @@ const Issues = () => {
           createdDate={element.createdDate}
         />
       ))}
+      <div ref={setTarget}>{isLoaded && <p>Loading..</p>}</div>
     </>
   );
 };
