@@ -33,6 +33,7 @@ const Issues = () => {
   const getData = useCallback(async () => {
     try {
       //   const data = await request.get("/issues?sort=comments&direction=desc");
+      // 페이지 20개씩 받기를 원하지만 40개씩 받아오고있음 수정해야함..
       const response = await request.get("/issues", {
         params: {
           sort: "comments",
