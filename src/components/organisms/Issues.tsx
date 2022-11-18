@@ -22,12 +22,13 @@ type Issue = {
 };
 
 const Issues = () => {
+  let page = 1
   const [issues, setIssues] = useState([]);
-  const [pageindex, setPageIndex] = useState("1");
+  // const [pageindex, setPageIndex] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const testFetch = (delay = 1000) =>
-    new Promise((res) => setTimeout(res, delay));
+  // const testFetch = (delay = 1000) =>
+  //   new Promise((res) => setTimeout(res, delay));
 
   const getData = useCallback(async () => {
     try {
@@ -36,7 +37,7 @@ const Issues = () => {
         params: {
           sort: "comments",
           direction: "desc",
-          page: pageindex,
+          page: page,
           per_page: "20",
         },
       });
@@ -50,11 +51,15 @@ const Issues = () => {
           createdDate: issue.created_at,
         };
       });
+      if (data.length=== 0) return null;
       console.log(data);
       setIsLoaded(true);
-      await testFetch();
-      setIssues((prevIssues) => prevIssues.concat(data));
-      setPageIndex((prevIndex) => prevIndex + 1);
+      // await testFetch();
+
+      // useState를 이용해서 페이지 인덱스 데이터를 관리하려고 했는데 page가 계속 1로 고정됨,,
+      // setPageIndex((prevIndex)=>prevIndex++)
+      setIssues((prevIssues) => [...prevIssues].concat(data));
+      page++
       setIsLoaded(false);
       // console.log(response.data);
     } catch (error) {
@@ -62,16 +67,14 @@ const Issues = () => {
     }
   }, []);
 
-  useEffect(() => {
-    getData();
-  }, []);
+
 
   const onIntersect: IntersectionObserverCallback = async (
     [entry],
     observer
   ) => {
     //보통 교차여부만 확인하는 것 같다. 코드는 로딩상태까지 확인함.
-    if (entry.isIntersecting && !isLoaded) {
+    if (entry.isIntersecting) {
       observer.unobserve(entry.target);
       await getData();
       observer.observe(entry.target);
