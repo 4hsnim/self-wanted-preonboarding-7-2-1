@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
-import Atoms from "../atoms";
-import Molecules from "../molecules";
+import { useEffect, useState, useCallback } from "react";
 import request from "../../utils/api/axios";
+import Molecules from "../molecules";
 
-const IssueTemplate = () => {
+const Issues = () => {
   type ResponseIssue = {
     id: string;
     number: string;
@@ -52,10 +51,7 @@ const IssueTemplate = () => {
   }, [getData]);
 
   return (
-    <Atoms.Container>
-      <Atoms.HeaderWrapper>
-        <Atoms.Title>Angular/Angular-cli</Atoms.Title>
-      </Atoms.HeaderWrapper>
+    <>
       {issues.map((element: Issue) => (
         <Molecules.Issue
           key={element.issueId}
@@ -66,8 +62,8 @@ const IssueTemplate = () => {
           createdDate={element.createdDate}
         />
       ))}
-    </Atoms.Container>
+    </>
   );
 };
 
-export default IssueTemplate;
+export default Issues;

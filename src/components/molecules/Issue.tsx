@@ -1,16 +1,30 @@
 import Atoms from "../atoms";
 
-const Issue = () => {
+type Issues = {
+  issueNumber: number;
+  comments: number;
+  issueTitle: string;
+  user: string;
+  createdDate: string;
+};
+
+const Issue = ({
+  issueNumber,
+  issueTitle,
+  user,
+  createdDate,
+  comments,
+}: Issues) => {
   return (
     <Atoms.IssueWrapper>
       <div>
-        <Atoms.IssueText issueTitle># 111</Atoms.IssueText>
-        <Atoms.IssueText issueTitle># title</Atoms.IssueText>
+        <Atoms.IssueText issueTitle>{issueNumber}</Atoms.IssueText>
+        <Atoms.IssueText issueTitle>{issueTitle}</Atoms.IssueText>
         <br />
-        <Atoms.IssueText issueBody>작성자: name</Atoms.IssueText>
-        <Atoms.IssueText issueBody>작성일: 2019년 12월 31일</Atoms.IssueText>
+        <Atoms.IssueText issueBody>작성자: {user}</Atoms.IssueText>
+        <Atoms.IssueText issueBody>작성일: {createdDate}</Atoms.IssueText>
       </div>
-      <Atoms.IssueText issueBody>코멘트: 67</Atoms.IssueText>
+      <Atoms.IssueText issueBody>코멘트: {comments}</Atoms.IssueText>
     </Atoms.IssueWrapper>
   );
 };

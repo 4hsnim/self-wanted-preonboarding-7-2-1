@@ -8,11 +8,12 @@ type Props = {
 
 const IssueText = styled.span<Props>`
   margin-right: 1.6rem;
-  ${({ issueTitle }) =>
-    issueTitle &&
-    css`
-      ${({ theme }) => theme.fontStyles.issueTitle}
-    `}
+
+  ${({ issueTitle, theme }) => {
+    if (issueTitle) {
+      return theme.fontStyles.issueTitle;
+    }
+  }}
 
   ${({ issueBody }) =>
     issueBody &&
@@ -23,3 +24,8 @@ const IssueText = styled.span<Props>`
 
 export default IssueText;
 /* ${({ theme }) => theme.fontStyles.issueTitle} */
+// ${({ issueTitle }) =>
+// issueTitle &&
+// css`
+//   ${({ theme }) => theme.fontStyles.issueTitle}
+// `}
