@@ -1,4 +1,5 @@
 import Atoms from "../atoms";
+import { forwardRef } from "react";
 
 type Issues = {
   issueNumber: number;
@@ -6,6 +7,7 @@ type Issues = {
   issueTitle: string;
   user: string;
   createdDate: string;
+  ref?: any;
 };
 
 const Issue = ({

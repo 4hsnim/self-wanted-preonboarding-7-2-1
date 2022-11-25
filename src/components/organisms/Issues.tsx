@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import request from "../../utils/api/axios";
 import Molecules from "../molecules";
 import useIntersectionObserver from "../../utils/hooks/useIntersectionObserver";
+import Atoms from "../atoms";
 
 type ResponseIssue = {
   id: string;
@@ -22,15 +23,15 @@ type Issue = {
 };
 
 const Issues = () => {
-  let page = 1
+  const [firstIssue, setFirstIssues] = useState([]);
   const [issues, setIssues] = useState([]);
-  // const [pageindex, setPageIndex] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [pageindex, setPageIndex] = useState(1);
+  const [isLoaded, setIsLoaded] = useState(true);
 
-  // const testFetch = (delay = 1000) =>
-  //   new Promise((res) => setTimeout(res, delay));
+  const testFetch = (delay = 1000) =>
+    new Promise((res) => setTimeout(res, delay));
 
-  const getData = useCallback(async () => {
+  const getData = async () => {
     try {
       //   const data = await request.get("/issues?sort=comments&direction=desc");
       // 페이지 20개씩 받기를 원하지만 40개씩 받아오고있음 수정해야함..
@@ -38,8 +39,8 @@ const Issues = () => {
         params: {
           sort: "comments",
           direction: "desc",
-          page: page,
-          per_page: "20",
+          page: pageindex,
+          per_page: "10",
         },
       });
       const data = response.data.map((issue: ResponseIssue): Issue => {
@@ -52,23 +53,24 @@ const Issues = () => {
           createdDate: issue.created_at,
         };
       });
-      if (data.length=== 0) return null;
+      if (data.length === 0) return null;
       console.log(data);
-      setIsLoaded(true);
-      // await testFetch();
+
+      await testFetch();
 
       // useState를 이용해서 페이지 인덱스 데이터를 관리하려고 했는데 page가 계속 1로 고정됨,,
       // setPageIndex((prevIndex)=>prevIndex++)
       setIssues((prevIssues) => [...prevIssues].concat(data));
-      page++
+      setPageIndex((prevPageIndex) => prevPageIndex + 1);
       setIsLoaded(false);
-      // console.log(response.data);
     } catch (error) {
       console.log(error);
     }
+  };
+
+  useEffect(() => {
+    getData();
   }, []);
-
-
 
   const onIntersect: IntersectionObserverCallback = async (
     [entry],
@@ -77,6 +79,7 @@ const Issues = () => {
     //보통 교차여부만 확인하는 것 같다. 코드는 로딩상태까지 확인함.
     if (entry.isIntersecting) {
       observer.unobserve(entry.target);
+      console.log("IO콜백함수 실행!");
       await getData();
       observer.observe(entry.target);
     }
@@ -85,24 +88,42 @@ const Issues = () => {
   //현재 대상 및 option을 props로 전달
   const { setTarget } = useIntersectionObserver({
     root: null,
-    rootMargin: "0px",
+    rootMargin: "20px",
     threshold: 0.5,
     onIntersect,
   });
 
   return (
     <>
-      {issues.map((element: Issue, index: number) => (
-        <Molecules.Issue
-          key={index}
-          issueNumber={element.issueNumber}
-          comments={element.comments}
-          issueTitle={element.issueTitle}
-          user={element.user}
-          createdDate={element.createdDate}
-        />
-      ))}
-      <div ref={setTarget}>{isLoaded && <p>Loading..</p>}</div>
+      {issues.map((element: Issue, index: number) => {
+        if (issues.length === index + 1) {
+          console.log("ref 입니다.");
+          return (
+            <Atoms.InfiniteContainer ref={setTarget}>
+              <Molecules.Issue
+                key={index}
+                issueNumber={element.issueNumber}
+                comments={element.comments}
+                issueTitle={element.issueTitle}
+                user={element.user}
+                createdDate={element.createdDate}
+              />
+            </Atoms.InfiniteContainer>
+          );
+        } else {
+          console.log("일반 입니다.");
+          return (
+            <Molecules.Issue
+              key={index}
+              issueNumber={element.issueNumber}
+              comments={element.comments}
+              issueTitle={element.issueTitle}
+              user={element.user}
+              createdDate={element.createdDate}
+            />
+          );
+        }
+      })}
     </>
   );
 };

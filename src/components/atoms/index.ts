@@ -3,6 +3,7 @@ import Title from "./Title";
 import IssueWrapper from "./IssueWrapper";
 import IssueText from "./IssueText";
 import Container from "./Container";
+import InfiniteContainer from "./InfiniteContainer";
 
 const Atoms = {
   HeaderWrapper,
@@ -10,6 +11,7 @@ const Atoms = {
   IssueWrapper,
   IssueText,
   Container,
+  InfiniteContainer,
 };
 
 export default Atoms;
