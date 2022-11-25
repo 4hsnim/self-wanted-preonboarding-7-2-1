@@ -17,16 +17,25 @@ const Issue = ({
   createdDate,
   comments,
 }: Issues) => {
+  const cutString = (string: string) => {
+    if (string.length > 30) {
+      string = string.slice(0, 30) + ".....";
+    }
+    return string;
+  };
+
   return (
     <Atoms.IssueWrapper>
-      <div>
+      <div style={{ width: "700px" }}>
         <Atoms.IssueText issueTitle>{issueNumber}</Atoms.IssueText>
-        <Atoms.IssueText issueTitle>{issueTitle}</Atoms.IssueText>
+        <Atoms.IssueText issueTitle>{cutString(issueTitle)}</Atoms.IssueText>
         <br />
         <Atoms.IssueText issueBody>작성자: {user}</Atoms.IssueText>
         <Atoms.IssueText issueBody>작성일: {createdDate}</Atoms.IssueText>
       </div>
-      <Atoms.IssueText issueBody>코멘트: {comments}</Atoms.IssueText>
+      <Atoms.IssueText issueBody display="inline-block">
+        코멘트: {comments}
+      </Atoms.IssueText>
     </Atoms.IssueWrapper>
   );
 };
